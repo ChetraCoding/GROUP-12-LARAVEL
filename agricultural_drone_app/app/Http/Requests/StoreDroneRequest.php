@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDroneRequest extends FormRequest
 {
@@ -29,7 +30,11 @@ class StoreDroneRequest extends FormRequest
     {
         return [
             //
-            'code' => 'required|unique:drones|max:128',
+            'code' => [
+                'required',
+                'max:255',
+                Rule::unique('drones')->ignore($this->id)
+            ],
             'battery' => 'required|numeric',
             'payload' => 'required|max:255',
             'user_id' => 'required|numeric|exists:users,id',
