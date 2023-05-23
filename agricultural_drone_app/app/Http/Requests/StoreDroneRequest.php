@@ -33,7 +33,7 @@ class StoreDroneRequest extends FormRequest
             'code' => [
                 'required',
                 'max:255',
-                Rule::unique('drones')->ignore($this->id)
+                Rule::unique('drones')->ignore($this->route('drone'))
             ],
             'battery' => 'required|numeric',
             'payload' => 'required|max:255',
