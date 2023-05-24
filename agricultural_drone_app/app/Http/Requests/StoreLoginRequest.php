@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Requests;
+
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Http\FormRequest;
@@ -9,8 +10,9 @@ class StoreLoginRequest extends FormRequest
 {
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json(['success'=> false, 'message'=> $validator->errors()], 412));
+        throw new HttpResponseException(response()->json(['success' => false, 'message' => $validator->errors()], 412));
     }
+    
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,9 +29,8 @@ class StoreLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'email'=> 'required|email',
-            'password'=> 'required|min:8',
+            'email' => 'required|email',
+            'password' => 'required|min:8',
         ];
     }
 }
