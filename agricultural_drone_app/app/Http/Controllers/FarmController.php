@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Farm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class FarmController extends Controller
 {
@@ -21,6 +22,7 @@ class FarmController extends Controller
     public function store(Request $request)
     {
         //
+       
     }
 
     /**
