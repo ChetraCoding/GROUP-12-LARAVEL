@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DroneController;
 use App\Http\Controllers\FarmController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\ProvinceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,4 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('drones', DroneController::class);
 
     Route::get('drones/search/{code}', [DroneController::class, 'search']);
+
+    Route::resource('maps', MapController::class);
 });
