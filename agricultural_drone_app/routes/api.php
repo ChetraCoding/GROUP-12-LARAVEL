@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DroneController;
 use App\Http\Controllers\FarmController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\ProvinceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -26,16 +27,22 @@ Route::post('register', [AuthController::class, 'register']);
 
 Route::post('login', [AuthController::class, 'login']);
 
+Route::resource('provinces', ProvinceController::class);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     
-    Route::resource('farm', FarmController::class);
-
-    Route::resource('provinces', ProvinceController::class);
+    Route::resource('farms', FarmController::class);
 
     Route::resource('drones', DroneController::class);
 
     Route::get('drones/search/{code}', [DroneController::class, 'search']);
     
     Route::get('drones/{id}/location', [DroneController::class, 'getLocationBy']);
+
+    Route::resource('maps', MapController::class);
+
+    Route::get('maps/{farm_id}/{map_id}', [MapController::class, 'showMapBy']);
+    
+    Route::delete('maps/{farm_id}/{map_id}', [MapController::class, 'destroyMapBy']);
 });

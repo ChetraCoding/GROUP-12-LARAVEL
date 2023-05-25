@@ -15,11 +15,11 @@ class ShowDroneResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'code' => $this->code,
             'battery' => $this->battery,
             'payload' => $this->payload,
             'user_id' => $this->user_id,
-            // 'user' => $this->users->name
         ];
     }
 }
