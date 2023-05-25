@@ -35,6 +35,8 @@ class StoreDroneRequest extends FormRequest
             ],
             'battery' => 'required|numeric',
             'payload' => 'required|max:255',
+            'lat' => 'required',
+            'lng' => 'required'
         ];
     }
 }

@@ -25,12 +25,13 @@ class DroneController extends Controller
      */
     public function store(StoreDroneRequest $request)
     {
-        $user_id = Auth::user()->id;
         $drone = Drone::create([
             'code'=> request('code'),
             'battery'=> request('battery'),
             'payload'=> request('payload'),
-            'user_id'=> $user_id
+            'lat'=> request('lat'),
+            'lng'=> request('lng'),
+            'user_id'=> Auth::id()
         ]);
         return Response()->json(['success' => true,'message' => 'Create drone is successfully.','data' => $drone], 200);
     }
@@ -40,9 +41,27 @@ class DroneController extends Controller
      */
     public function search($code)
     {
-        $drones = Auth::user()->drones()->where('code', 'like', "%{$code}%")->get();
+        $drones = Drone::where([['user_id', Auth::id()], ['code', 'like', "%{$code}%"]])->get();
         $drones = ShowDroneResource::collection($drones);
         return Response()->json(['success' => true, 'message' => 'Search drones are successfully.', 'data' => $drones], 200);
+    }
+
+    /**
+     * Search code for drones.
+     */
+    public function getLocationBy($id)
+    {
+        $drone = Auth::user()->drones->find($id);
+        if ($drone){
+            $location = [
+                'location'=> [
+                    'lat'=> $drone->lat,
+                    'lng'=> $drone->lng,
+                ]
+            ];
+            return Response()->json(['success' => true, 'message' => 'Get drone is successfully.', 'data' => $location], 200);
+        }
+        return response()->json(['success' => false,'message' => 'Drone id is not found.'], 404);
     }
 
     /**
@@ -53,7 +72,7 @@ class DroneController extends Controller
         $drone = Auth::user()->drones->find($id);
         if ($drone){
             $drone = new ShowDroneResource($drone);
-            return Response()->json(['success' => true, 'message' => 'Get drone is successfully..', 'data' => $drone], 200);
+            return Response()->json(['success' => true, 'message' => 'Get drone is successfully.', 'data' => $drone], 200);
         }
         return response()->json(['success' => false,'message' => 'Drone id is not found.'], 404);
     }
@@ -69,6 +88,8 @@ class DroneController extends Controller
                 'code'=> request('code'),
                 'battery'=> request('battery'),
                 'payload'=> request('payload'),
+                'lat'=> request('lat'),
+                'lng'=> request('lng'),
                 'user_id'=> $drone->user_id
             ]);
             return Response()->json(['success' => true,'message' => 'Update drone is successfully.','data' => $drone], 200);
@@ -81,7 +102,7 @@ class DroneController extends Controller
      */
     public function destroy($id)
     {
-        $drone = Drone::find($id);
+        $drone = Auth::user()->drones->find($id);
         if ($drone){
             $drone->delete();
             return Response()->json(['success' => true,'message' => 'Delete drone is successfully.',], 200);

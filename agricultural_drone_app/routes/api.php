@@ -36,4 +36,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('drones', DroneController::class);
 
     Route::get('drones/search/{code}', [DroneController::class, 'search']);
+    
+    Route::get('drones/{id}/location', [DroneController::class, 'getLocationBy']);
 });

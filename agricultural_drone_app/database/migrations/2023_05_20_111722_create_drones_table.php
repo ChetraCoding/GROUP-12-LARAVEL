@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('code');
             $table->integer('battery');
             $table->string('payload');
+            $table->decimal('lat', 10, 8);
+            $table->decimal('lng', 11, 8);
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')
                     ->references('id')

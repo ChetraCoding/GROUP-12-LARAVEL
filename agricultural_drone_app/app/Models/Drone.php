@@ -13,6 +13,8 @@ class Drone extends Model
         'code',
         'battery',
         'payload',
+        'lat',
+        'lng',
         'user_id'
     ];
 
