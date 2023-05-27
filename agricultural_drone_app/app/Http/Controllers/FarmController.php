@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFarmRequest;
+use App\Http\Resources\FarmResource;
 use App\Models\Farm;
 use App\Models\Province;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class FarmController extends Controller
     public function index()
     {
         $farms = Auth::user()->farms;
-        return response()->json(['success' => true, 'message' => 'Get farms are successfully.', 'data' => $farms], 200);
+        $farms = FarmResource::collection($farms);
+        return response()->json(['success' => true, 'message' => 'Get all farms are successfully.', 'data' => $farms], 200);
     }
 
     /**
@@ -39,6 +41,7 @@ class FarmController extends Controller
     public function show($id)
     {
         $farm = Auth::user()->farms->find($id);
+        $farm = new FarmResource($farm);
         if ($farm) {
             return response()->json(['success' => true, 'message' => 'Get farm is successfully.', 'data' => $farm], 200);
         }

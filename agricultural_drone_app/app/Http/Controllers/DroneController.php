@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDroneRequest;
+use App\Http\Requests\StoreUpdateInstructionRequest;
+use App\Http\Resources\DroneResource;
+use App\Http\Resources\LocationResource;
 use App\Http\Resources\ShowDroneResource;
 use App\Models\Drone;
 use Illuminate\Http\Request;
@@ -16,7 +19,7 @@ class DroneController extends Controller
     public function index()
     {
         $drones = Auth::user()->drones;
-        $drones = ShowDroneResource::collection($drones);
+        $drones = DroneResource::collection($drones);
         return response()->json(['success' => true, 'message' => 'Get all drones are successfully.', 'data' => $drones],200);
     }
 
@@ -25,40 +28,18 @@ class DroneController extends Controller
      */
     public function store(StoreDroneRequest $request)
     {
-        $drone = Drone::create([
-            'code'=> request('code'),
-            'battery'=> request('battery'),
-            'payload'=> request('payload'),
-            'lat'=> request('lat'),
-            'lng'=> request('lng'),
-            'user_id'=> Auth::id()
-        ]);
+        $drone = Drone::store($request);
         return Response()->json(['success' => true,'message' => 'Create drone is successfully.','data' => $drone], 200);
     }
 
     /**
-     * Search code for drones.
+     * Get current location of drone (latitude and longitude).
      */
-    public function search($code)
+    public function getLocationBy($drone_id)
     {
-        $drones = Drone::where([['user_id', Auth::id()], ['code', 'like', "%{$code}%"]])->get();
-        $drones = ShowDroneResource::collection($drones);
-        return Response()->json(['success' => true, 'message' => 'Search drones are successfully.', 'data' => $drones], 200);
-    }
-
-    /**
-     * Search code for drones.
-     */
-    public function getLocationBy($id)
-    {
-        $drone = Auth::user()->drones->find($id);
+        $drone = Auth::user()->drones->find($drone_id);
         if ($drone){
-            $location = [
-                'location'=> [
-                    'lat'=> $drone->lat,
-                    'lng'=> $drone->lng,
-                ]
-            ];
+            $location = new LocationResource($drone);
             return Response()->json(['success' => true, 'message' => 'Get drone is successfully.', 'data' => $location], 200);
         }
         return response()->json(['success' => false,'message' => 'Drone id is not found.'], 404);
@@ -78,20 +59,29 @@ class DroneController extends Controller
     }
 
     /**
+     * Update the drone's instruction by the given drone and instruction ID.
+     */
+    public function updateDroneInstruction($drone_id, $instruction_id, StoreUpdateInstructionRequest $request) {
+        $drone = Auth::user()->drones->find($drone_id);
+        if ($drone) {
+            $instruction = $drone->instructions->find($instruction_id);
+            if ($instruction) {
+                $instruction->update($request->only('run_mode', 'speed', 'lat', 'lng'));
+                return Response()->json(['success' => true, 'message' => "Update drone's instruction is successfully.", 'data'=> $instruction], 200);
+            }
+            return response()->json(['success' => false,'message' => 'Instruction id is not found.'], 404);
+        }
+        return response()->json(['success' => false,'message' => 'Drone id is not found.'], 404);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(StoreDroneRequest $request, $id)
     {
-        $drone = Auth::user()->drones->find($id);
-        if ($drone){
-            $drone->update([
-                'code'=> request('code'),
-                'battery'=> request('battery'),
-                'payload'=> request('payload'),
-                'lat'=> request('lat'),
-                'lng'=> request('lng'),
-                'user_id'=> $drone->user_id
-            ]);
+        $checkDrone = Auth::user()->drones->find($id);
+        if ($checkDrone){
+            $drone = Drone::store($request, $id);
             return Response()->json(['success' => true,'message' => 'Update drone is successfully.','data' => $drone], 200);
         }
         return response()->json(['success' => false,'message' => 'Drone id is not found.'], 404);

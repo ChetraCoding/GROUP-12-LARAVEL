@@ -40,7 +40,7 @@ class AuthController extends Controller
         }
         return Response()->json([
             'success' => false,
-            'message' => 'login credentails are invalid',
+            'message' => 'login credentails are invalid.',
         ], 404);
     }
 
@@ -49,7 +49,7 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
         return Response()->json([
             'success' => true,
-            'message' => 'logout is successfully',
+            'message' => 'logout is successfully.',
         ], 200);
     }
 }

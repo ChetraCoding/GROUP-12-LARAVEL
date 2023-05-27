@@ -13,13 +13,14 @@ class ProvinceSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         $provinces = [
-            ['name' => 'Phnom Phen'],
-            ['name' => 'Kampong cham'],
-            ['name' => 'Kampong chhnang'],
+            ['name' => 'Takeo'],
+            ['name' => 'Kampong Cham'],
+            ['name' => 'Kampong Chhnang'],
             ['name' => 'Kampong Thom'],
-            ['name' => 'Kampong Speu']
+            ['name' => 'Kampong Speu'],
+            ['name' => 'Bathambong'],
+            ['name' => 'Prey Veng'],
         ];
         foreach($provinces as $province){
             Province::create($province);

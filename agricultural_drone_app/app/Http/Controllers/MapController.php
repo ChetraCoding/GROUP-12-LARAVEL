@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMapRequest;
+use App\Http\Resources\MapResource;
+use App\Http\Resources\ShowMapResource;
 use App\Models\Map;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +16,22 @@ class MapController extends Controller
      */
     public function index()
     {
-        $maps = collect();
-        Auth::user()->drones->map(function ($drone) use ($maps) {
-            $drone->maps->map(function ($map) use ($maps) {
-                $maps->push($map);
-            });
-        });
-        return response()->json(['success' => true, 'message' => 'Get maps are successfully.', 'data' => $maps], 200);
+        $maps = Map::listOfMaps();
+        $maps = MapResource::collection($maps);
+        return response()->json(['success' => true, 'message' => 'Get all maps are successfully.', 'data' => $maps], 200);
+    }
+
+    /**
+     * Display all maps by the given farm ID.
+     */
+    public function getMapsBy($farm_id)
+    {
+        $farm = Auth::user()->farms->find($farm_id);
+        if ($farm) {
+            $maps = MapResource::collection($farm->maps);
+            return response()->json(['success' => true, 'message' => 'Get all maps are successfully.', 'data' => $maps], 200);
+        }
+        return response()->json(['success' => false, 'message' => 'Farm id is not found.'], 404);
     }
 
     /**
@@ -28,28 +39,29 @@ class MapController extends Controller
      */
     public function store(StoreMapRequest $request)
     {
-        $farm = Auth::user()->farms->find(request('farm_id'));
-        $drone = Auth::user()->drones->find(request('drone_id'));
-        if ($farm && $drone) {
-            $map = Map::create($request->only('farm_id', 'drone_id', 'image'));
-            return response()->json(['success' => true, 'message' => 'Create map is successfully.', 'data' => $map], 200);
+        $checkFarm = Auth::user()->farms->find(request('farm_id'));
+        $checkDrone = Auth::user()->drones->find(request('drone_id'));
+        if ($checkFarm) {
+            if ($checkDrone) {
+                $map = Map::store($request);
+                return response()->json(['success' => true, 'message' => 'Create map is successfully.', 'data' => $map], 200);
+            }
+            return response()->json(['success' => false, 'message' => 'Select drone id is invalid.'], 404);
         }
-        return response()->json(['success' => false, 'message' => 'Farm id or drone id is invalid.'], 404);
+        return response()->json(['success' => false, 'message' => 'Select farm id is invalid.'], 404);
     }
 
     /**
      * Display the specified resource.
      */
-    public function showMapBy($farm_id, $map_id)
+    public function show($id)
     {
-        $farm = Auth::user()->farms->find($farm_id);
-        if ($farm) {
-            $map = $farm->maps->find($map_id);
-            if ($map) {
-                return response()->json(['success' => true, 'message' => 'Get map is successfully.', 'data' => $map], 200);
-            }
+        $map = Map::listOfMaps()->where('id', $id)->first();
+        if ($map) {
+            $map = new ShowMapResource($map);
+            return response()->json(['success' => true, 'message' => 'Get map is successfully.', 'data' => $map], 200);
         }
-        return response()->json(['success' => false, 'message' => 'Farm id or map id is invalid.'], 404);
+        return response()->json(['success' => false, 'message' => 'Map id is not found.'], 404);
     }
 
     /**
@@ -57,14 +69,14 @@ class MapController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $map = Map::find($id);
-        if ($map) {
-            $farm = Auth::user()->farms->find(request('farm_id'));
-            if ($farm) {
-                $map->update($request->only('farm_id', 'drone_id', 'image'));
+        $checkMap = Map::listOfMaps()->where('id', $id)->first();
+        if ($checkMap) {
+            $checkFarm = Auth::user()->farms->find(request('farm_id'));
+            if ($checkFarm) {
+                $map = Map::store($request, $id);
                 return response()->json(['success' => true, 'message' => 'Update map is successfully.', 'data' => $map], 200);
             }
-            return response()->json(['success' => false, 'message' => 'Farm id is invalid.'], 404);
+            return response()->json(['success' => false, 'message' => 'Select farm id is invalid.'], 404);
         }
         return response()->json(['success' => false, 'message' => 'Map id is not found.'], 404);
     }
@@ -72,16 +84,13 @@ class MapController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroyMapBy($farm_id, $map_id)
+    public function destroy($id)
     {
-        $farm = Auth::user()->farms->find($farm_id);
-        if ($farm) {
-            $map = $farm->maps->find($map_id);
-            if ($map) {
-                $map->delete();
-                return response()->json(['success' => true, 'message' => 'Delete map is successfully.'], 200);
-            }
+        $map = Map::listOfMaps()->where('id', $id)->first();
+        if ($map) {
+            $map->delete();
+            return response()->json(['success' => true, 'message' => 'Delete map is successfully.'], 200);
         }
-        return response()->json(['success' => false, 'message' => 'Farm id or map id is invalid.'], 404);
+        return response()->json(['success' => false, 'message' => 'Map id is not found.'], 404);
     }
 }

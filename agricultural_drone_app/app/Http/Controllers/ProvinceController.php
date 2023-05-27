@@ -19,7 +19,7 @@ class ProvinceController extends Controller
     {
         $provinces = Province::all();
         $provinces = ShowProvinceResource::collection($provinces);
-        return Response()->json(['success' => true, 'message' => 'Get provinces are successfully.', 'data' => $provinces], 200);
+        return Response()->json(['success' => true, 'message' => 'Get all provinces are successfully.', 'data' => $provinces], 200);
     }
 
     /**
@@ -30,14 +30,18 @@ class ProvinceController extends Controller
         $provinces = Province::create($request->only('name'));
         return Response()->json(['success' => true, 'message' => 'Create province is successfully.', 'data' => $provinces], 200);
     }
+    
     /**
      * Display the specified resource.
      */
     public function show($id)
     {
         $province = Province::find($id);
-        $province = new ShowProvinceResource($province);
-        return Response()->json(['success' => true, 'message' => 'Get province is successfully.', 'data' => $province ], 200);
+        if ($province) {
+            $province = new ShowProvinceResource($province);
+            return Response()->json(['success' => true, 'message' => 'Get province is successfully.', 'data' => $province ], 200);
+        }
+        return Response()->json(['success' => false, 'message' => 'Province id is not found.'], 404);
     }
 
     /**

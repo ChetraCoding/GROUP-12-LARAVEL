@@ -33,6 +33,10 @@ class User extends Authenticatable
     public function farms(): HasMany{
         return $this->hasMany(Farm::class);
     }
+
+    public function plans(): HasMany{
+        return $this->hasMany(Plan::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *
