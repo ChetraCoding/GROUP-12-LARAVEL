@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUpdateInstructionRequest;
 use App\Http\Resources\DroneResource;
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\ShowDroneResource;
+use App\Http\Resources\ShowInstructionResource;
 use App\Models\Drone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,7 @@ class DroneController extends Controller
             $instruction = $drone->instructions->find($instruction_id);
             if ($instruction) {
                 $instruction->update($request->only('run_mode', 'speed', 'lat', 'lng'));
+                $instruction = new ShowInstructionResource($instruction);
                 return Response()->json(['success' => true, 'message' => "Update drone's instruction is successfully.", 'data'=> $instruction], 200);
             }
             return response()->json(['success' => false,'message' => 'Instruction id is not found.'], 404);
