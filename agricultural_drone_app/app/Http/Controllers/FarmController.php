@@ -41,8 +41,8 @@ class FarmController extends Controller
     public function show($id)
     {
         $farm = Auth::user()->farms->find($id);
-        $farm = new FarmResource($farm);
         if ($farm) {
+            $farm = new FarmResource($farm);
             return response()->json(['success' => true, 'message' => 'Get farm is successfully.', 'data' => $farm], 200);
         }
         return response()->json(['success' => false, 'message' => 'Farm id is not found.'], 404);
